@@ -42,7 +42,7 @@ model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 # 2. Connect to ChromaDB
 # -------------------------------
 client = chromadb.PersistentClient(path="SunnyTheSunbirdAI/Sunny_The_Sunbird_AI/chroma_db")
-collection = client.get_collection(name="fpu_website_embeddings")
+collection = client.get_collection(name="university")
 
 
 
