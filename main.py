@@ -1,65 +1,45 @@
 import streamlit as st
-import os
-from dotenv import load_dotenv
-import google.generativeai as genai
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+import os
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+import google.generativeai as genai
 from langchain.vectorstores import FAISS
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
+from dotenv import load_dotenv
 from HomeScreen import show_home_screen
 from ChatScreen import show_chat_screen
 from ChatTab import show_chat_tab 
+import google.generativeai as genai
+import chromadb
 
-# -------------------------------
-# 0. Initialize UI state
-# -------------------------------
+# Initialize screen state if not already set
 if "screen" not in st.session_state:
-    st.session_state.screen = "home"
+    st.session_state.screen = "home"  # Start at home screen
 
+# Handle screen transitions based on the screen state
 if st.session_state.screen == "chat":
-    show_chat_screen()
+    show_chat_screen()  # Show chat screen
 else:
-    show_home_screen()
-
-# Show the chat tab permanently
+    show_home_screen()  # Show home screen
+    
+# Show the chat tab permanently at the bottom
 show_chat_tab()
 
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
 # -------------------------------
-# 1. Load environment and configure Gemini API
+# 1. Configure Gemini API Key
 # -------------------------------
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Initialize Gemini model
+# Initialize the Gemini model
 model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
 # -------------------------------
-# 2. Load FAISS Vector Store
+# 2. Connect to ChromaDB
 # -------------------------------
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-
-faiss_index = FAISS.load_local(
-    "SunnyTheSunbirdAI/Sunny_The_Sunbird_AI/chroma_db_backup",
-    embeddings,
-    allow_dangerous_deserialization=True
-)
-
-# Now `faiss_index` is your document search tool.
-# Example use (optional depending on where you use it):
-# docs = faiss_index.similarity_search("your query here", k=3)
-# chain = load_qa_chain(ChatGoogleGenerativeAI(model="gemini-pro"), chain_type="stuff")
-# response = chain.run(input_documents=docs, question="your query here")
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
+client = chromadb.PersistentClient(path="SunnyTheSunbirdAI/Sunny_The_Sunbird_AI/chroma_db_backup")
+collection = client.get_collection(name="fpu_website_embedding")
